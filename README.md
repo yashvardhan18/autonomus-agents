@@ -22,7 +22,7 @@ This project implements autonomous agents capable of communicating with each oth
 
 
 
-  Setup Instructions 
+  ## **Setup Instructions**
 
 
 1. Clone the Repository 
@@ -52,16 +52,20 @@ cd autonomous-agents-assignment
 
 
 
-How It Works
-Message Handling:
+## **How It Works**
+**Message Handling:**
 
 Agents listen to their inboxes for messages and process them using registered handlers.
 "hello" messages are logged by handle_hello.
 "crypto" messages trigger ERC-20 token transfers via handle_crypto.
-Message Generation:
+
+
+**Message Generation:**
 
 Agents proactively generate random messages periodically and add them to the outbox.
-Error Handling:
+
+
+**Error Handling:**
 
 Handles common Ethereum transaction errors, including:
 nonce too low
@@ -74,7 +78,8 @@ Implements retries with increasing gas prices for failed transactions
 
 
 
-Example Logs
+## **Example Logs**
+
 When you run the script, you should see logs similar to the following:
 
 Generated message: hello world
@@ -90,7 +95,8 @@ Transaction confirmed. Block number: 12345679
 
 
 
-Known Issues
+## **Known Issues**
+
 Nonce Conflicts: If multiple transactions are sent simultaneously, nonce conflicts might occur. The system handles these by retrying transactions with updated nonces.
 Long Wait Times: Blockchain confirmations may take longer than expected depending on network congestion.
 
