@@ -14,26 +14,26 @@ source_address = os.getenv("ADDRESS_SOURCE")
 target_address = os.getenv("ADDRESS_TARGET")
 erc20_contract_address = os.getenv("ERC20_CONTRACT_ADDRESS")
 
-# MessageQueue Class for handling message exchange
+
 class MessageQueue:
     def __init__(self):
         self.messages = []
         self.lock = threading.Lock()
 
     def add_message(self, message):
-        """ Add message to the queue (OutBox) """
+        
         with self.lock:
             self.messages.append(message)
 
     def get_message(self):
-        """ Get and remove the first message from the queue (InBox) """
+        
         with self.lock:
             if self.messages:
                 return self.messages.pop(0)
             else:
                 return None
 
-# AutonomousAgent Base Class for common behavior
+
 class AutonomousAgent:
     def __init__(self, inbox, outbox):
         self.inbox = inbox
@@ -42,17 +42,17 @@ class AutonomousAgent:
         self.behaviors = []
 
     def register_handler(self, message_type, handler):
-        """ Register a handler function for a specific message type. """
+        
         if message_type not in self.handlers:
             self.handlers[message_type] = []
         self.handlers[message_type].append(handler)
 
     def register_behavior(self, behavior):
-        """ Register a proactive behavior for the agent. """
+        
         self.behaviors.append(behavior)
 
     def process_messages(self):
-        """ Process incoming messages concurrently. """
+        
         while True:
             message = self.inbox.get_message()
             if message:
@@ -63,14 +63,14 @@ class AutonomousAgent:
             time.sleep(1)  # Optional: to avoid CPU spiking
 
     def run_behaviors(self):
-        """ Run the agent's proactive behaviors concurrently. """
+        
         while True:
             for behavior in self.behaviors:
                 threading.Thread(target=behavior).start()
             time.sleep(1)
 
     def start(self):
-        """ Start processing messages and behaviors in separate threads. """
+        
         threading.Thread(target=self.process_messages, daemon=True).start()
         threading.Thread(target=self.run_behaviors, daemon=True).start()
 
@@ -90,7 +90,7 @@ class ConcreteAgent(AutonomousAgent):
         self.register_handler("random_message", self.handle_hello)
         self.register_handler("random_message", self.handle_crypto)
     def get_erc20_abi(self):
-        """ Load the ERC-20 ABI from a file or hardcode it """
+        
         try:
             with open("erc20_abi.json", "r") as f:
                 return json.load(f)
@@ -99,7 +99,7 @@ class ConcreteAgent(AutonomousAgent):
         except json.JSONDecodeError:
             raise ValueError("Invalid JSON format in 'erc20_abi.json'.")
     def generate_random_message(self):
-        """ Generate a random message and add it to the OutBox """
+        
         message_content = random.choice(self.word_list)
         
         # Ensure that the message randomly contains either 'hello' or 'crypto'
@@ -112,17 +112,17 @@ class ConcreteAgent(AutonomousAgent):
         print(f"Generated message: {message_content}")  # Debug: print generated message
         time.sleep(2)
     def check_erc20_balance(self):
-        """ Check ERC-20 token balance """
+        
         balance = self.erc20_contract.functions.balanceOf(self.source_address).call()
         print(f"Balance: {balance}")
         time.sleep(10)        
     def handle_hello(self, message):
-        """ Handle messages containing 'hello'. """
+        
         if "hello" in message.get("content", ""):
             print(f"handle_hello invoked for message: {message['content']}")
 
     def handle_crypto(self, message):
-        """ Handle messages containing 'crypto'. """
+        
         balance = self.erc20_contract.functions.balanceOf(self.source_address).call()
         if balance > 0:
             retry_count = 3  # Number of retries for failed transactions
@@ -174,7 +174,7 @@ class ConcreteAgent(AutonomousAgent):
             print("Insufficient balance to transfer tokens.")
 
     def get_nonce(self):
-        """ Get the latest nonce and increment it """
+        
         # We can use the cached nonce if it's available or fetch it from the blockchain
         if self.source_address in self.nonce_cache:
             self.nonce_cache[self.source_address] += 1
@@ -196,20 +196,20 @@ if __name__ == "__main__":
     inbox2 = outbox1
     outbox2 = inbox1
     
-    # Initialize Agent 1 and Agent 2
+    
     agent1 = ConcreteAgent(inbox1, outbox1, web3, source_private_key, source_address, target_address, erc20_contract_address)
     agent2 = ConcreteAgent(inbox2, outbox2, web3, source_private_key, source_address, target_address, erc20_contract_address)
 
-    # Register behaviors and handlers for Agent 1
+    
     agent1.register_behavior(agent1.generate_random_message)
     agent1.register_behavior(agent1.check_erc20_balance)
     agent1.start()
 
-    # Register behaviors and handlers for Agent 2
+    
     agent2.register_behavior(agent2.generate_random_message)
     agent2.register_behavior(agent2.check_erc20_balance)
     agent2.start()
 
-    # Run agents concurrently
+    
     while True:
         pass
