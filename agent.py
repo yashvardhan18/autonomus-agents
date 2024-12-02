@@ -60,7 +60,7 @@ class AutonomousAgent:
                 if message_type in self.handlers:
                     for handler in self.handlers[message_type]:
                         threading.Thread(target=handler, args=(message,)).start()
-            time.sleep(1)  # Optional: to avoid CPU spiking
+            time.sleep(1)  
 
     def run_behaviors(self):
         
@@ -84,9 +84,9 @@ class ConcreteAgent(AutonomousAgent):
         self.erc20_contract = self.web3.eth.contract(address=erc20_contract_address, abi=self.get_erc20_abi())
         self.lock = threading.Lock()
         self.word_list = ["hello", "sun", "world", "space", "moon", "crypto", "sky", "ocean", "universe", "human"]
-        self.nonce_cache = {}  # Cache to track the latest nonce
+        self.nonce_cache = {}  
 
-        # Register handlers
+       
         self.register_handler("random_message", self.handle_hello)
         self.register_handler("random_message", self.handle_crypto)
     def get_erc20_abi(self):
@@ -102,14 +102,14 @@ class ConcreteAgent(AutonomousAgent):
         
         message_content = random.choice(self.word_list)
         
-        # Ensure that the message randomly contains either 'hello' or 'crypto'
+     
         if random.choice([True, False]):
             message_content = "hello " + random.choice(self.word_list)
         else:
             message_content = "crypto " + random.choice(self.word_list)
 
         self.outbox.add_message({"type": "random_message", "content": message_content})
-        print(f"Generated message: {message_content}")  # Debug: print generated message
+        print(f"Generated message: {message_content}")  
         time.sleep(2)
     def check_erc20_balance(self):
         
@@ -125,17 +125,17 @@ class ConcreteAgent(AutonomousAgent):
         
         balance = self.erc20_contract.functions.balanceOf(self.source_address).call()
         if balance > 0:
-            retry_count = 3  # Number of retries for failed transactions
+            retry_count = 2  
             while retry_count > 0:
                 try:
-                    # Fetch the latest nonce
+                    
                     nonce = self.get_nonce()
 
-                    # Fetch and dynamically increase the gas price
+                    
                     gas_price = self.web3.eth.gas_price
-                    higher_gas_price = int(gas_price * (1.2 + (3 - retry_count) * 0.1))  # Increment gas price with retries
+                    higher_gas_price = int(gas_price * (1.2 + (3 - retry_count) * 0.1))  #
 
-                    # Build the transaction
+                    
                     txn = self.erc20_contract.functions.transfer(
                         self.target_address, 1
                     ).build_transaction({
@@ -145,23 +145,23 @@ class ConcreteAgent(AutonomousAgent):
                         "gasPrice": higher_gas_price,
                     })
 
-                    # Sign the transaction
+                    
                     signed_txn = self.web3.eth.account.sign_transaction(txn, private_key=self.source_private_key)
 
-                    # Send the transaction
+                    
                     txn_hash = self.web3.eth.send_raw_transaction(signed_txn.raw_transaction)
                     print(f"Transaction sent. Waiting for confirmation... Transaction hash: {txn_hash.hex()}")
 
-                    # Wait for confirmation
+                    
                     receipt = self.web3.eth.wait_for_transaction_receipt(txn_hash, timeout=120)
                     if receipt.status == 1:
                         print(f"Transaction confirmed. Block number: {receipt.blockNumber}")
-                        return  # Exit the function upon successful confirmation
+                        return  
                     else:
                         print(f"Transaction failed. Receipt: {receipt}")
-                        break  # Stop retries if the transaction is explicitly failed
+                        break  
                 except Exception as e:
-                    # print(f"Transaction error: {e}")
+                    
                     if "already known" in str(e):
                         print("Transaction already known, Skipping or retrying.")
                     if "replacement transaction underpriced" in str(e):
@@ -169,17 +169,17 @@ class ConcreteAgent(AutonomousAgent):
                     retry_count -= 1
                     if retry_count == 0:
                         print("Transaction failed after retries.")
-                        return  # Exit after exhausting retries
+                        return  
         else:
             print("Insufficient balance to transfer tokens.")
 
     def get_nonce(self):
         
-        # We can use the cached nonce if it's available or fetch it from the blockchain
+        
         if self.source_address in self.nonce_cache:
             self.nonce_cache[self.source_address] += 1
         else:
-            # Fetch the latest nonce from the blockchain
+            
             latest_nonce = self.web3.eth.get_transaction_count(self.source_address, "pending")
             self.nonce_cache[self.source_address] = latest_nonce
         return self.nonce_cache[self.source_address]
