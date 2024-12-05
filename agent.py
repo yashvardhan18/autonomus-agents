@@ -2,17 +2,18 @@ import json
 import time
 import random
 import threading
+import logging
 from web3 import Web3
 from dotenv import load_dotenv
 import os
 from inbox_outbox import MessageQueue
 
 load_dotenv()
-web3 = Web3(Web3.HTTPProvider(os.getenv("WEB3_PROVIDER_URL")))
-source_private_key = os.getenv("PRIVATE_KEY_SOURCE")
-source_address = os.getenv("ADDRESS_SOURCE")
-target_address = os.getenv("ADDRESS_TARGET")
-erc20_contract_address = os.getenv("ERC20_CONTRACT_ADDRESS")
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+
 
 
 class MessageQueue:
@@ -109,20 +110,20 @@ class ConcreteAgent(AutonomousAgent):
             message_content = "crypto " + random.choice(self.word_list)
 
         self.outbox.add_message({"type": "random_message", "content": message_content})
-        print(f"Generated message: {message_content}")  
+        self.logger.info(f"Generated message: {message_content}")  
         time.sleep(2)
     def check_erc20_balance(self):
         
         balance = self.erc20_contract.functions.balanceOf(self.source_address).call()
-        print(f"Balance: {balance}")
+        self.logger.info(f"Balance: {balance}")
         time.sleep(10)        
     def handle_hello(self, message):
         
         if "hello" in message.get("content", ""):
-            print(f"handle_hello invoked for message: {message['content']}")
+            self.logger.info(f"handle_hello invoked for message: {message['content']}")
 
     def handle_crypto(self, message):
-        
+        self.logger.info(f"Processing crypto message: {message['content']}")
         balance = self.erc20_contract.functions.balanceOf(self.source_address).call()
         if balance > 0:
             retry_count = 2  
@@ -150,28 +151,28 @@ class ConcreteAgent(AutonomousAgent):
 
                     
                     txn_hash = self.web3.eth.send_raw_transaction(signed_txn.raw_transaction)
-                    print(f"Transaction sent. Waiting for confirmation... Transaction hash: {txn_hash.hex()}")
+                    self.logger.info(f"Transaction sent. Waiting for confirmation... Transaction hash: {txn_hash.hex()}")
 
                     
                     receipt = self.web3.eth.wait_for_transaction_receipt(txn_hash, timeout=120)
                     if receipt.status == 1:
-                        print(f"Transaction confirmed. Block number: {receipt.blockNumber}")
+                        self.logger.info(f"Transaction confirmed. Block number: {receipt.blockNumber}")
                         return  
                     else:
-                        print(f"Transaction failed. Receipt: {receipt}")
+                        self.logger.error(f"Transaction failed. Receipt: {receipt}")
                         break  
                 except Exception as e:
                     
                     if "already known" in str(e):
-                        print("Transaction already known, Skipping or retrying.")
+                        self.logger.error("Transaction already known, Skipping or retrying.")
                     if "replacement transaction underpriced" in str(e):
-                        print("Transaction underpriced, retrying with higher gas price.")
+                        self.logger.error("Transaction underpriced, retrying with higher gas price.")
                     retry_count -= 1
                     if retry_count == 0:
-                        print("Transaction failed after retries.")
+                        self.logger.error("Transaction failed after retries.")
                         return  
         else:
-            print("Insufficient balance to transfer tokens.")
+            self.logger.warning("Insufficient balance to transfer tokens.")
 
     def get_nonce(self):
         
@@ -190,7 +191,8 @@ if __name__ == "__main__":
     source_address = os.getenv("ADDRESS_SOURCE")
     target_address = os.getenv("ADDRESS_TARGET")
     erc20_contract_address = os.getenv("ERC20_CONTRACT_ADDRESS")
-
+    agent1_logger = logging.getLogger("Agent1")
+    agent2_logger = logging.getLogger("Agent2")
     inbox1 = MessageQueue()
     outbox1 = MessageQueue()
     inbox2 = outbox1
@@ -198,7 +200,9 @@ if __name__ == "__main__":
     
     
     agent1 = ConcreteAgent(inbox1, outbox1, web3, source_private_key, source_address, target_address, erc20_contract_address)
+    agent1.logger = agent1_logger
     agent2 = ConcreteAgent(inbox2, outbox2, web3, source_private_key, source_address, target_address, erc20_contract_address)
+    agent2.logger = agent2_logger
 
     
     agent1.register_behavior(agent1.generate_random_message)
