@@ -1,3 +1,4 @@
+import os
 import json
 import time
 import random
@@ -5,16 +6,15 @@ import threading
 import logging
 from web3 import Web3
 from dotenv import load_dotenv
-import os
-from inbox_outbox import MessageQueue
 
+# Load environment variables
 load_dotenv()
+
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
-
-
 
 class MessageQueue:
     def __init__(self):
@@ -22,119 +22,31 @@ class MessageQueue:
         self.lock = threading.Lock()
 
     def add_message(self, message):
-        
         with self.lock:
             self.messages.append(message)
 
     def get_message(self):
-        
         with self.lock:
             if self.messages:
                 return self.messages.pop(0)
-            else:
-                return None
+            return None
 
 
 class AutonomousAgent:
-    def __init__(self, inbox, outbox):
+    def __init__(self, inbox, outbox, agent_name):
         self.inbox = inbox
         self.outbox = outbox
-        self.handlers = {}
-        self.behaviors = []
+        self.agent_name = agent_name
+        self.logger = logging.getLogger(agent_name)
 
-    def register_handler(self, message_type, handler):
-        
-        if message_type not in self.handlers:
-            self.handlers[message_type] = []
-        self.handlers[message_type].append(handler)
-
-    def register_behavior(self, behavior):
-        
-        self.behaviors.append(behavior)
-
-    def process_messages(self):
-        
-        while True:
-            message = self.inbox.get_message()
-            if message:
-                message_type = message.get("type")
-                if message_type in self.handlers:
-                    for handler in self.handlers[message_type]:
-                        threading.Thread(target=handler, args=(message,)).start()
-            time.sleep(1)  
-
-    def run_behaviors(self):
-        
-        for behavior in self.behaviors:
-            threading.Thread(target=behavior, daemon=True).start()
-
-    def start(self):
-    
-        threading.Thread(target=self.process_messages, daemon=True).start()
-        self.run_behaviors()
-
-class ConcreteAgent(AutonomousAgent):
-    def __init__(self, inbox, outbox, web3, source_private_key, source_address, target_address, erc20_contract_address):
-        super().__init__(inbox, outbox)
-        self.web3 = web3
-        self.source_private_key = source_private_key
-        self.source_address = source_address
-        self.target_address = target_address
-        self.erc20_contract = self.web3.eth.contract(address=erc20_contract_address, abi=self.get_erc20_abi())
-        self.lock = threading.Lock()
-        self.word_list = ["hello", "sun", "world", "space", "moon", "crypto", "sky", "ocean", "universe", "human"]
-        self.nonce_cache = {}  
-
-       
-        self.register_handler("random_message", self.handle_hello)
-        self.register_handler("random_message", self.handle_crypto)
-    def get_erc20_abi(self):
-        
-        try:
-            with open("erc20_abi.json", "r") as f:
-                return json.load(f)
-        except FileNotFoundError:
-            raise FileNotFoundError("The file 'erc20_abi.json' was not found in the project directory.")
-        except json.JSONDecodeError:
-            raise ValueError("Invalid JSON format in 'erc20_abi.json'.")
-    def generate_random_message(self):
- 
-        next_run = time.monotonic()  # Agent-specific timing
-        while True:
-            current_time = time.monotonic()
-            if current_time >= next_run:
-                message_content = random.choice(self.word_list)
-                if random.choice([True, False]):
-                    message_content = "hello " + random.choice(self.word_list)
-                else:
-                    message_content = "crypto " + random.choice(self.word_list)
-
-                self.outbox.add_message({"type": "random_message", "content": message_content})
-                self.logger.info(f"[{self.logger.name}] Generated message: {message_content}")
-                next_run += 2  # Increment by 2 seconds
-            else:
-                time.sleep(0.1)  # Sleep briefly to reduce CPU usage
-
-    def check_erc20_balance(self):
-
-        next_run = time.monotonic()  # Agent-specific timing
-        while True:
-            current_time = time.monotonic()
-            if current_time >= next_run:
-                balance = self.erc20_contract.functions.balanceOf(self.source_address).call()
-                self.logger.info(f"[{self.logger.name}] Balance: {balance}")
-                next_run += 10  # Increment by 10 seconds
-            else:
-                time.sleep(0.1)  # Sleep briefly to reduce CPU usage
-        
     def handle_hello(self, message):
-        
         if "hello" in message.get("content", ""):
             self.logger.info(f"handle_hello invoked for message: {message['content']}")
 
     def handle_crypto(self, message):
-        self.logger.info(f"Processing crypto message: {message['content']}")
-        balance = self.erc20_contract.functions.balanceOf(self.source_address).call()
+        if "crypto" in message.get("content", ""):
+            self.logger.info(f"Processing crypto message: {message['content']}")
+            balance = self.erc20_contract.functions.balanceOf(self.source_address).call()
         if balance > 0:
             retry_count = 2  
             while retry_count > 0:
@@ -195,43 +107,102 @@ class ConcreteAgent(AutonomousAgent):
             self.nonce_cache[self.source_address] = latest_nonce
         return self.nonce_cache[self.source_address]
 
-if __name__ == "__main__":
+    def process_messages(self):
+        while True:
+            message = self.inbox.get_message()
+            if message:
+                if "hello" in message["content"]:
+                    self.handle_hello(message)
+                elif "crypto" in message["content"]:
+                    self.handle_crypto(message)
+            time.sleep(0.1)
+
+
+class ConcreteAgent(AutonomousAgent):
+    def __init__(self, inbox, outbox, web3, source_address, target_address, erc20_contract, agent_name):
+        super().__init__(inbox, outbox, agent_name)
+        self.web3 = web3
+        self.source_address = source_address
+        self.target_address = target_address
+        self.erc20_contract = erc20_contract
+        self.word_list = ["hello", "sun", "world", "space", "moon", "crypto", "sky", "ocean", "universe", "human"]
+
+    def generate_message(self):
+        message_content = random.choice(self.word_list)
+        if random.choice([True, False]):
+            message_content = "hello " + random.choice(self.word_list)
+        else:
+            message_content = "crypto " + random.choice(self.word_list)
+
+        self.outbox.add_message({"type": "random_message", "content": message_content})
+        self.logger.info(f"Generated message: {message_content}")
+
+    def check_balance(self):
+        balance = self.erc20_contract.functions.balanceOf(self.source_address).call()
+        self.logger.info(f"Balance: {balance}")
+
+
+# Synchronization events
+agent1_done_event = threading.Event()
+
+
+def agent1_cycle(agent1):
+    while True:
+        agent1.generate_message()
+        agent1_done_event.set()  # Notify Agent 2
+        time.sleep(4)  # Agent 1 generates messages every 2 seconds
+
+
+def agent2_cycle(agent2):
+    while True:
+        agent1_done_event.wait()  # Wait for Agent 1 to finish
+        time.sleep(2)  # Ensure a 2-second delay after Agent 1
+        agent2.generate_message()
+        agent1_done_event.clear()  # Reset for the next round
+
+
+def balance_cycle(agent1, agent2):
+    while True:
+        # Agent 1 checks balance
+        agent1.check_balance()
+        time.sleep(9)
+        # Agent 2 checks balance
+        agent2.check_balance()
+        time.sleep(9)
+
+
+def main():
     web3 = Web3(Web3.HTTPProvider(os.getenv("WEB3_PROVIDER_URL")))
-    source_private_key = os.getenv("PRIVATE_KEY_SOURCE")
     source_address = os.getenv("ADDRESS_SOURCE")
     target_address = os.getenv("ADDRESS_TARGET")
     erc20_contract_address = os.getenv("ERC20_CONTRACT_ADDRESS")
-    agent1_logger = logging.getLogger("Agent1")
-    agent2_logger = logging.getLogger("Agent2")
+
+    # Load ERC20 ABI
+    with open("erc20_abi.json", "r") as f:
+        erc20_abi = json.load(f)
+
+    erc20_contract = web3.eth.contract(address=erc20_contract_address, abi=erc20_abi)
+
+    # Message queues
     inbox1 = MessageQueue()
     outbox1 = MessageQueue()
     inbox2 = outbox1
     outbox2 = inbox1
-    
-    
-    agent1 = ConcreteAgent(inbox1, outbox1, web3, source_private_key, source_address, target_address, erc20_contract_address)
-    agent1.logger = agent1_logger
-    agent2 = ConcreteAgent(inbox2, outbox2, web3, source_private_key, source_address, target_address, erc20_contract_address)
-    agent2.logger = agent2_logger
 
-    
-    agent1.register_behavior(agent1.generate_random_message)
-    agent1.register_behavior(agent1.check_erc20_balance)
-    agent1.start()
+    # Agents
+    agent1 = ConcreteAgent(inbox1, outbox1, web3, source_address, target_address, erc20_contract, "agent1")
+    agent2 = ConcreteAgent(inbox2, outbox2, web3, source_address, target_address, erc20_contract, "agent2")
 
-    
-    agent2.register_behavior(agent2.generate_random_message)
-    agent2.register_behavior(agent2.check_erc20_balance)
-    # agent2.start()
+    # Threads
+    threading.Thread(target=agent1.process_messages, daemon=True).start()
+    threading.Thread(target=agent2.process_messages, daemon=True).start()
+    threading.Thread(target=agent1_cycle, args=(agent1,), daemon=True).start()
+    threading.Thread(target=agent2_cycle, args=(agent2,), daemon=True).start()
+    threading.Thread(target=balance_cycle, args=(agent1, agent2), daemon=True).start()
 
-    
     while True:
-        pass
+        time.sleep(1)
 
 
-
-
-
-
-
-
+if __name__ == "__main__":
+    main()

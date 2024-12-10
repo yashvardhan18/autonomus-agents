@@ -105,23 +105,33 @@ Implements retries with increasing gas prices for failed transactions
 
 When you run the script, you should see logs similar to the following:
 
-Generated message: hello world
+```2024-12-10 17:38:47,864 - agent1 - INFO - Generated message: hello world
 
-handle_hello invoked for message: hello world
+2024-12-10 17:38:47,964 - agent2 - INFO - handle_hello invoked for message: hello world
 
-Balance: 1000000000000000000
+2024-12-10 17:38:48,746 - agent1 - INFO - Balance: 98897999594
 
-Transaction sent. Waiting for confirmation... Transaction hash: 0xabc123...
+2024-12-10 17:38:49,865 - agent2 - INFO - Generated message: crypto hello
 
-Transaction confirmed. Block number: 12345678
+2024-12-10 17:38:49,870 - agent1 - INFO - handle_hello invoked for message: crypto hello
 
-Generated message: crypto moon
+2024-12-10 17:38:51,865 - agent1 - INFO - Generated message: crypto ocean
 
-handle_crypto invoked for message: crypto moon
+2024-12-10 17:38:51,877 - agent2 - INFO - Processing crypto message: crypto ocean
 
-Transaction sent. Waiting for confirmation... Transaction hash: 0xdef456...
+2024-12-10 17:38:53,866 - agent2 - INFO - Generated message: hello ocean
 
-Transaction confirmed. Block number: 12345679
+2024-12-10 17:38:53,882 - agent1 - INFO - handle_hello invoked for message: hello ocean
+
+2024-12-10 17:38:55,865 - agent1 - INFO - Generated message: crypto sun
+
+2024-12-10 17:38:55,964 - agent2 - INFO - Processing crypto message: crypto sun
+
+2024-12-10 17:38:57,866 - agent2 - INFO - Generated message: hello ocean
+
+2024-12-10 17:38:57,895 - agent1 - INFO - handle_hello invoked for message: hello ocean
+
+2024-12-10 17:38:58,695 - agent2 - INFO - Balance: 98897999594```
 
 
 
@@ -132,5 +142,7 @@ Transaction confirmed. Block number: 12345679
 Nonce Conflicts: If multiple transactions are sent simultaneously, nonce conflicts might occur. The system handles these by retrying transactions with updated nonces.
 
 Long Wait Times: Blockchain confirmations may take longer than expected depending on network congestion.
+
+Transaction Retries: Due to sepolia congestion the transaction might fail.
 
 
