@@ -29,14 +29,23 @@ This project implements autonomous agents capable of communicating with each oth
 
    Clone this repository to your local machine:
 
-   git clone https://github.com/yourusername/autonomous-agents-assignment.git
-   cd autonomous-agents-assignment
+   ```git clone https://github.com/yourusername/autonomous-agents-assignment.git```
+   ```cd autonomous-agents-assignment```
 
-2. Install the required Python packages using pip:
+2. **Create a Virtual Environment**:
+   It's recommended to use a virtual environment to manage dependencies:
+   ```bash
+   ```python3 -m venv venv```
+   
+   On Windows: ```venv\Scripts\activate```
 
-   pip install -r requirements.txt
+   On macOS/Linux: ```source venv/bin/activate```
 
-3. Create a .env file in the root directory of the project, and add the following environment variables:
+3. Install the required Python packages using pip:
+
+   ```pip install -r requirements.txt```
+
+4. Create a .env file in the root directory of the project, and add the following environment variables:
 
    WEB3_PROVIDER_URL=<Your_Tenderly_Fork_URL>
    
@@ -48,18 +57,16 @@ This project implements autonomous agents capable of communicating with each oth
    
    ERC20_CONTRACT_ADDRESS=<Your_ERC20_Contract_Address>
 
-4. **Create a Virtual Environment**:
-   It's recommended to use a virtual environment to manage dependencies:
-   ```bash
-   python3 -m venv venv
-   
-   On Windows: venv\Scripts\activate
 
-   On macOS/Linux: source venv/bin/activate
+5. Run the unit tests by running the command-
+   ```python -m unittest discover -s tests -p "*.py"```
+            OR to run specific test files
+   ```python -m unittest tests/test_conccreteAgent.py```
 
 
-5. Start the agents by executing the agent.py script:
-   python agent.py
+
+6. Start the agents by executing the agent.py script:
+   ```python agent.py```
 
 
 

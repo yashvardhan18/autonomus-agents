@@ -65,15 +65,13 @@ class AutonomousAgent:
 
     def run_behaviors(self):
         
-        while True:
-            for behavior in self.behaviors:
-                threading.Thread(target=behavior).start()
-            time.sleep(1)
+        for behavior in self.behaviors:
+            threading.Thread(target=behavior, daemon=True).start()
 
     def start(self):
-        
+    
         threading.Thread(target=self.process_messages, daemon=True).start()
-        threading.Thread(target=self.run_behaviors, daemon=True).start()
+        self.run_behaviors()
 
 class ConcreteAgent(AutonomousAgent):
     def __init__(self, inbox, outbox, web3, source_private_key, source_address, target_address, erc20_contract_address):
@@ -100,23 +98,35 @@ class ConcreteAgent(AutonomousAgent):
         except json.JSONDecodeError:
             raise ValueError("Invalid JSON format in 'erc20_abi.json'.")
     def generate_random_message(self):
-        
-        message_content = random.choice(self.word_list)
-        
-     
-        if random.choice([True, False]):
-            message_content = "hello " + random.choice(self.word_list)
-        else:
-            message_content = "crypto " + random.choice(self.word_list)
+ 
+        next_run = time.monotonic()  # Agent-specific timing
+        while True:
+            current_time = time.monotonic()
+            if current_time >= next_run:
+                message_content = random.choice(self.word_list)
+                if random.choice([True, False]):
+                    message_content = "hello " + random.choice(self.word_list)
+                else:
+                    message_content = "crypto " + random.choice(self.word_list)
 
-        self.outbox.add_message({"type": "random_message", "content": message_content})
-        self.logger.info(f"Generated message: {message_content}")  
-        time.sleep(2)
+                self.outbox.add_message({"type": "random_message", "content": message_content})
+                self.logger.info(f"[{self.logger.name}] Generated message: {message_content}")
+                next_run += 2  # Increment by 2 seconds
+            else:
+                time.sleep(0.1)  # Sleep briefly to reduce CPU usage
+
     def check_erc20_balance(self):
+
+        next_run = time.monotonic()  # Agent-specific timing
+        while True:
+            current_time = time.monotonic()
+            if current_time >= next_run:
+                balance = self.erc20_contract.functions.balanceOf(self.source_address).call()
+                self.logger.info(f"[{self.logger.name}] Balance: {balance}")
+                next_run += 10  # Increment by 10 seconds
+            else:
+                time.sleep(0.1)  # Sleep briefly to reduce CPU usage
         
-        balance = self.erc20_contract.functions.balanceOf(self.source_address).call()
-        self.logger.info(f"Balance: {balance}")
-        time.sleep(10)        
     def handle_hello(self, message):
         
         if "hello" in message.get("content", ""):
@@ -212,8 +222,16 @@ if __name__ == "__main__":
     
     agent2.register_behavior(agent2.generate_random_message)
     agent2.register_behavior(agent2.check_erc20_balance)
-    agent2.start()
+    # agent2.start()
 
     
     while True:
         pass
+
+
+
+
+
+
+
+
