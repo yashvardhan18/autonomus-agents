@@ -23,7 +23,7 @@ This project implements autonomous agents capable of inter-agent communication, 
    - Uses Web3.py to interact with the Ethereum blockchain.
    - Transfers ERC-20 tokens and dynamically manages nonces for transaction retries.
 
----
+
 
 
 
@@ -39,18 +39,18 @@ This project implements autonomous agents capable of inter-agent communication, 
 
 ### 2. Create a Virtual Environment:
    It's recommended to use a virtual environment to manage dependencies:
-   ```bash
+   
    ```python3 -m venv venv```
    
    On Windows: ```venv\Scripts\activate```
 
    On macOS/Linux: ```source venv/bin/activate```
 
-###3. Install the required Python packages using pip:
+### 3. Install the required Python packages using pip:
 
    ```pip install -r requirements.txt```
 
-###4. Create a .env file in the root directory of the project, and add the following environment variables:
+### 4. Create a .env file in the root directory of the project, and add the following environment variables:
 
    WEB3_PROVIDER_URL=<Your_Tenderly_Fork_URL>
    
@@ -63,14 +63,14 @@ This project implements autonomous agents capable of inter-agent communication, 
    ERC20_CONTRACT_ADDRESS=<Your_ERC20_Contract_Address>
 
 
-###5. Run the unit tests by running the command-
+### 5. Run the unit tests by running the command-
    ```python -m unittest discover -s tests -p "*.py"```
             OR to run specific test files
    ```python -m unittest tests/test_concreteAgent.py```
 
 
 
-###6. Start the agents by executing the agent.py script:
+### 6. Start the agents by executing the agent.py script:
    ```python agent.py```
 
 
@@ -110,7 +110,7 @@ Implements retries with increasing gas prices for failed transactions
 
 When you run the script, you should see logs similar to the following:
 
-```2024-12-10 17:38:47,864 - agent1 - INFO - Generated message: hello world
+2024-12-10 17:38:47,864 - agent1 - INFO - Generated message: hello world
 
 2024-12-10 17:38:47,964 - agent2 - INFO - handle_hello invoked for message: hello world
 
@@ -136,7 +136,7 @@ When you run the script, you should see logs similar to the following:
 
 2024-12-10 17:38:57,895 - agent1 - INFO - handle_hello invoked for message: hello ocean
 
-2024-12-10 17:38:58,695 - agent2 - INFO - Balance: 98897999594```
+2024-12-10 17:38:58,695 - agent2 - INFO - Balance: 98897999594
 
 
 
