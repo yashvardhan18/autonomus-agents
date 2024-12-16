@@ -1,7 +1,7 @@
 # tests/test_behaviors.py
 import unittest
 from unittest.mock import MagicMock
-from inbox_outbox import MessageQueue
+from agent import MessageQueue
 from agent import ConcreteAgent
 
 class TestBehaviors(unittest.TestCase):

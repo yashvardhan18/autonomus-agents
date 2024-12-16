@@ -60,7 +60,7 @@ class AutonomousAgent:
 
                     
                     txn = self.erc20_contract.functions.transfer(
-                        self.target_address, 1
+                        self.target_address, 1*10**self.erc20_contract.functions.decimals()
                     ).build_transaction({
                         "from": self.source_address,
                         "nonce": nonce,

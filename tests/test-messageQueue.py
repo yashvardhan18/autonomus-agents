@@ -1,6 +1,6 @@
 
 import unittest
-from inbox_outbox import MessageQueue
+from agent import MessageQueue
 
 class TestMessageQueue(unittest.TestCase):
     def setUp(self):
