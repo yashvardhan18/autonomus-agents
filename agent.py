@@ -38,6 +38,7 @@ class AutonomousAgent:
         self.outbox = outbox
         self.agent_name = agent_name
         self.logger = logging.getLogger(agent_name)
+        
 
     def handle_hello(self, message):
         if "hello" in message.get("content", ""):
@@ -58,9 +59,9 @@ class AutonomousAgent:
                     gas_price = self.web3.eth.gas_price
                     higher_gas_price = int(gas_price * (1.2 + (3 - retry_count) * 0.1))  #
 
-                    
+                    decimals = self.erc20_contract.functions.decimals().call()
                     txn = self.erc20_contract.functions.transfer(
-                        self.target_address, 1*10**self.erc20_contract.functions.decimals()
+                        self.target_address, 1*(10**decimals)
                     ).build_transaction({
                         "from": self.source_address,
                         "nonce": nonce,
@@ -119,13 +120,17 @@ class AutonomousAgent:
 
 
 class ConcreteAgent(AutonomousAgent):
-    def __init__(self, inbox, outbox, web3, source_address, target_address, erc20_contract, agent_name):
+    def __init__(self, inbox, outbox, web3, source_address, target_address, erc20_contract, source_private_key, agent_name):
         super().__init__(inbox, outbox, agent_name)
         self.web3 = web3
         self.source_address = source_address
         self.target_address = target_address
         self.erc20_contract = erc20_contract
+        self.source_private_key = source_private_key
         self.word_list = ["hello", "sun", "world", "space", "moon", "crypto", "sky", "ocean", "universe", "human"]
+        
+        self.nonce_cache = {}
+        
 
     def generate_message(self):
         message_content = random.choice(self.word_list)
@@ -168,13 +173,14 @@ def balance_cycle(agent1, agent2):
         time.sleep(9)
         # Agent 2 checks balance
         agent2.check_balance()
-        time.sleep(9)
+        time.sleep(10)
 
 
 def main():
     web3 = Web3(Web3.HTTPProvider(os.getenv("WEB3_PROVIDER_URL")))
     source_address = os.getenv("ADDRESS_SOURCE")
     target_address = os.getenv("ADDRESS_TARGET")
+    source_private_key = os.getenv("PRIVATE_KEY_SOURCE")
     erc20_contract_address = os.getenv("ERC20_CONTRACT_ADDRESS")
 
     # Load ERC20 ABI
@@ -190,8 +196,8 @@ def main():
     outbox2 = inbox1
 
     # Agents
-    agent1 = ConcreteAgent(inbox1, outbox1, web3, source_address, target_address, erc20_contract, "agent1")
-    agent2 = ConcreteAgent(inbox2, outbox2, web3, source_address, target_address, erc20_contract, "agent2")
+    agent1 = ConcreteAgent(inbox1, outbox1, web3, source_address, target_address, erc20_contract, source_private_key,"agent1")
+    agent2 = ConcreteAgent(inbox2, outbox2, web3, source_address, target_address, erc20_contract, source_private_key,"agent2")
 
     # Threads
     threading.Thread(target=agent1.process_messages, daemon=True).start()

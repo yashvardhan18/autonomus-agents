@@ -22,6 +22,7 @@ class TestAgents(unittest.TestCase):
         # Mock accounts
         self.source_address = "0xSourceAddress"
         self.target_address = "0xTargetAddress"
+        self.source_private_key = "0xMockPrivateKey"
 
         # Initialize MessageQueue mocks
         self.inbox = MessageQueue()
@@ -35,6 +36,7 @@ class TestAgents(unittest.TestCase):
             source_address=self.source_address,
             target_address=self.target_address,
             erc20_contract=self.contract_mock,
+            source_private_key=self.source_private_key,
             agent_name="agent1",
         )
 

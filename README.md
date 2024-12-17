@@ -6,20 +6,20 @@ This project implements autonomous agents capable of inter-agent communication, 
 
 ## Features
 
-1. **Reactive Behavior**
+   1. **Reactive Behavior**
    - Handles messages of types `hello` and `crypto`.
    - `"hello"` messages trigger logging via `handle_hello`.
    - `"crypto"` messages initiate ERC-20 token transfers using `handle_crypto`.
 
-2. **Proactive Behavior**
+   2. **Proactive Behavior**
    - Periodically generates random messages to the outbox.
    - Regularly checks the ERC-20 token balance of the source address.
 
-3. **Self-Sufficient Design**
-   - Agents operate independently, using `inbox` and `outbox` queues for communication.
+   3. **Self-Sufficient Design**
+   - Agents operate independently, using `inbox` and `outbox` queues for       communication.
    - Designed to function autonomously without external intermediaries.
 
-4. **Blockchain Interaction**
+   4. **Blockchain Interaction**
    - Uses Web3.py to interact with the Ethereum blockchain.
    - Transfers ERC-20 tokens and dynamically manages nonces for transaction retries.
 
@@ -32,12 +32,15 @@ This project implements autonomous agents capable of inter-agent communication, 
 
 ### 1. Clone the Repository 
 
-   Clone this repository to your local machine:
+   First, clone this repository to your local machine:
 
    ```git clone https://github.com/yourusername/autonomous-agents-assignment.git```
-   ```cd autonomous-agents-assignment```
+   ```cd autonomous-agents-assignment``` 
 
-### 2. Create a Virtual Environment:
+
+
+### 2. Create and Activate a Virtual Environment:
+
    It's recommended to use a virtual environment to manage dependencies:
    
    ```python3 -m venv venv```
@@ -46,11 +49,19 @@ This project implements autonomous agents capable of inter-agent communication, 
 
    On macOS/Linux: ```source venv/bin/activate```
 
-### 3. Install the required Python packages using pip:
+
+
+### 3. Install Required Dependencies
+
+Install the required Python packages using the requirements.txt file with pip:
 
    ```pip install -r requirements.txt```
 
-### 4. Create a .env file in the root directory of the project, and add the following environment variables:
+
+
+### 4. Set Environment Variables
+
+Create a .env file in the root directory of the project, and add the following environment variables:
 
    WEB3_PROVIDER_URL=<Your_Tenderly_Fork_URL>
    
@@ -62,15 +73,24 @@ This project implements autonomous agents capable of inter-agent communication, 
    
    ERC20_CONTRACT_ADDRESS=<Your_ERC20_Contract_Address>
 
+Replace the placeholders with your own Ethereum details.
 
-### 5. Run the unit tests by running the command-
+
+
+### 5. Run the unit tests-
+
+To verify that the agents and their handlers work correctly, run the following tests:
+   To run all tests:
    ```python -m unittest discover -s tests -p "*.py"```
-            OR to run specific test files
+
+   OR to run specific test files:
    ```python -m unittest tests/test_concreteAgent.py```
 
 
 
-### 6. Start the agents by executing the agent.py script:
+### 6. Run the Agents
+
+Start the agents by executing the agent.py script:
    ```python agent.py```
 
 
@@ -151,3 +171,31 @@ Long Wait Times: Blockchain confirmations may take longer than expected dependin
 Transaction Retries: Due to sepolia congestion the transaction might fail.
 
 
+## **Directory Structure**
+
+```autonomous-agents-assignment/
+│
+├── agent.py                # Main script to run agents
+├── requirements.txt        # Required dependencies
+├── .env                    # Environment variables (user-provided)
+├── erc20_abi.json          # ERC-20 ABI file for token interaction
+├── tests/
+│   ├── test_concreteAgent.py   # Unit tests for ConcreteAgent
+│   └── test_utils.py           # Utility tests (if applicable)
+└── README.md               # Project documentation
+```
+
+## **Contributing**
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+
+## **License**
+
+This project is licensed under the MIT License.
+
+
+## **Contact**
+
+Email: vardhanyash20000@gmail.com.com\
+GitHub: yashvardhan18
