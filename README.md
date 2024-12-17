@@ -16,7 +16,7 @@ This project implements autonomous agents capable of inter-agent communication, 
    - Regularly checks the ERC-20 token balance of the source address.
 
    3. **Self-Sufficient Design**
-   - Agents operate independently, using `inbox` and `outbox` queues for       communication.
+   - Agents operate independently, using `inbox` and `outbox` queues for communication.
    - Designed to function autonomously without external intermediaries.
 
    4. **Blockchain Interaction**
@@ -34,8 +34,10 @@ This project implements autonomous agents capable of inter-agent communication, 
 
    First, clone this repository to your local machine:
 
-   ```git clone https://github.com/yourusername/autonomous-agents-assignment.git```
-   ```cd autonomous-agents-assignment``` 
+   ```
+   git clone https://github.com/yourusername/autonomous-agents-assignment.git
+   cd autonomous-agents-assignment
+   ``` 
 
 
 
@@ -43,11 +45,19 @@ This project implements autonomous agents capable of inter-agent communication, 
 
    It's recommended to use a virtual environment to manage dependencies:
    
-   ```python3 -m venv venv```
+   ```
+python3 -m venv venv
+```
    
-   On Windows: ```venv\Scripts\activate```
+   On Windows: 
+```
+venv\Scripts\activate
+```
 
-   On macOS/Linux: ```source venv/bin/activate```
+   On macOS/Linux: 
+```
+source venv/bin/activate
+```
 
 
 
@@ -55,14 +65,16 @@ This project implements autonomous agents capable of inter-agent communication, 
 
 Install the required Python packages using the requirements.txt file with pip:
 
-   ```pip install -r requirements.txt```
+   ```
+pip install -r requirements.txt
+```
 
 
 
 ### 4. Set Environment Variables
 
 Create a .env file in the root directory of the project, and add the following environment variables:
-
+```
    WEB3_PROVIDER_URL=<Your_Tenderly_Fork_URL>
    
    PRIVATE_KEY_SOURCE=<Your_Private_Key>
@@ -72,7 +84,7 @@ Create a .env file in the root directory of the project, and add the following e
    ADDRESS_TARGET=<Your_Target_Address>
    
    ERC20_CONTRACT_ADDRESS=<Your_ERC20_Contract_Address>
-
+```
 Replace the placeholders with your own Ethereum details.
 
 
@@ -81,17 +93,23 @@ Replace the placeholders with your own Ethereum details.
 
 To verify that the agents and their handlers work correctly, run the following tests:
    To run all tests:
-   ```python -m unittest discover -s tests -p "*.py"```
+   ```
+python -m unittest discover -s tests -p "*.py"
+```
 
    OR to run specific test files:
-   ```python -m unittest tests/test_concreteAgent.py```
+   ```
+python -m unittest tests/test_concreteAgent.py
+```
 
 
 
 ### 6. Run the Agents
 
 Start the agents by executing the agent.py script:
-   ```python agent.py```
+   ```
+python agent.py
+```
 
 
 
@@ -129,7 +147,7 @@ Implements retries with increasing gas prices for failed transactions
 ## **Example Logs**
 
 When you run the script, you should see logs similar to the following:
-
+```
 2024-12-10 17:38:47,864 - agent1 - INFO - Generated message: hello world
 
 2024-12-10 17:38:47,964 - agent2 - INFO - handle_hello invoked for message: hello world
@@ -157,7 +175,7 @@ When you run the script, you should see logs similar to the following:
 2024-12-10 17:38:57,895 - agent1 - INFO - handle_hello invoked for message: hello ocean
 
 2024-12-10 17:38:58,695 - agent2 - INFO - Balance: 98897999594
-
+```
 
 
 
