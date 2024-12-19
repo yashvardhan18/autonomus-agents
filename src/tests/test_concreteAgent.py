@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 from queue import Queue
-from agent import ConcreteAgent, AutonomousAgent, MessageQueue
+from src.autonomous_agent import ConcreteAgent, AutonomousAgent, MessageQueue
 
 class TestAgents(unittest.TestCase):
     def setUp(self):

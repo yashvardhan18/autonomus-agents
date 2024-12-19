@@ -1,6 +1,6 @@
 
 import unittest
-from agent import MessageQueue
+from src.autonomous_agent import MessageQueue
 
 class TestMessageQueue(unittest.TestCase):
     def setUp(self):

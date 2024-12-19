@@ -189,19 +189,6 @@ Long Wait Times: Blockchain confirmations may take longer than expected dependin
 Transaction Retries: Due to sepolia congestion the transaction might fail.
 
 
-## **Directory Structure**
-
-```autonomous-agents-assignment/
-│
-├── agent.py                # Main script to run agents
-├── requirements.txt        # Required dependencies
-├── .env                    # Environment variables (user-provided)
-├── erc20_abi.json          # ERC-20 ABI file for token interaction
-├── tests/
-│   ├── test_concreteAgent.py   # Unit tests for ConcreteAgent
-│   └── test_utils.py           # Utility tests (if applicable)
-└── README.md               # Project documentation
-```
 
 ## **Contributing**
 

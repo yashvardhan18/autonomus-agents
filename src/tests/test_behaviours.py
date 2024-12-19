@@ -1,8 +1,8 @@
 # tests/test_behaviors.py
 import unittest
 from unittest.mock import MagicMock
-from agent import MessageQueue
-from agent import ConcreteAgent
+from src.autonomous_agent import MessageQueue
+from src.autonomous_agent import ConcreteAgent
 
 class TestBehaviors(unittest.TestCase):
     def setUp(self):
